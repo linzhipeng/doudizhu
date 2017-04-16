@@ -2,8 +2,8 @@ var doudizhu = function () {}
 
 var card = function () {
     // 约定：
-    // 扑克牌54张，分别包含A、2-10、J、Q、K （以上每种牌4个花色）、大王、小王
-    // 扑克牌4种花色：黑桃、梅花、红心、方块，分别对应花色id 0-3，用于手牌花色排序
+    // 扑克牌54张，分别包含普通牌52张：A、2-10、J、Q、K （以上每种牌4个花色）小王大王：Swang、Bwang
+    // 普通牌4种花色：黑桃、梅花、红心、方块，分别对应花色id 0-3，用于手牌花色排序，小王大王的花色是Swang、Bwang
     // id从0-53，按照每张牌4种花色排序，如：黑桃A、梅花A、红心A、方块A、黑桃2....
 
 
@@ -32,8 +32,10 @@ var card = function () {
                         return '牌id不合法'
                 }
             }
-        } else if (id == 52 || id == 53) {
-            return 'wang'
+        } else if (id === 52) {
+            return 'Swang'
+        } else if (id === 53) {
+            return 'Bwang'
         } else {
             return '牌id不合法'
         }
@@ -45,8 +47,12 @@ var card = function () {
 
         if (id >= 0 && id <= 51) {
             return suits.toString()
+        } else if (id === 52) {
+            return 'Swang'
+        } else if (id === 53) {
+            return 'Bwang'
         } else {
-            return 'wang'
+            return '牌id不合法'
         }
     }
     // 获取牌权重 1-15

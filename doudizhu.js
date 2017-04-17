@@ -183,4 +183,66 @@ var doudizhu = function () {
             'leaveCards': leaveCards
         }
     }
+
+    // 出牌类型判断，接收出牌的id数组
+    // 返回一个对象，用来表示：
+    // 牌类型（DAN_TIAO, DUI_ZI, SAN_TIAO, SAN_DAI_YI, SAN_DAI_YI_DUI, SI_DAI_SHAUNG_DAN, FEI_JI_DAI_SHUANG_DAN, SI_TIAO_DAI_SHUANG_DUI, FEI_JI_DAI_SHUANG_DUI, DAN_SHUN, SAN_SHUN, SHUANG_SHUN, ZHA_DAN, WANG_ZHA）
+    // 牌类型权重（1-3）
+    // 当前组合牌权重（最小权重为 1）
+    this.getCardType = function (arr) {
+
+        var arrLength = arr.length,
+            cardType, cardTypeWeight, groupCardsWeight
+
+        // 出牌数限制
+        if (arrLength <= 0 || arrLength >= 17) {
+            return false
+        }
+        // 过滤掉非正整数id、重复id
+        var arr1 = arr.filter(function (id, index, self) {
+            return (self.indexOf(id) === index && Math.abs(parseInt(id)) === id)
+        })
+        if (arr1.length !== arrLength) {
+            return false
+        }
+        
+        // 对牌进行排序
+        arr = this.sort(arr)
+
+        if (arrLength <= 4) {
+            switch (arrLength) {
+                case 1:
+                    return { // 单条
+                        cardType: 'DAN_TIAO',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: this.cardInfo.getWeight(arr[0])
+                    }
+                    break
+                case 2:
+                    if (arr[0] === 52 && arr[1] === 53) {
+                        return { // 王炸
+                            cardType: 'WANG_ZHA',
+                            cardTypeWeight: 3,
+                            groupCardsWeight: 1
+                        }
+                    } else if (this.cardInfo.getWeight(arr[0]) === this.cardInfo.getWeight(arr[1])) {
+                        return { // 对子
+                            cardType: 'DUI_ZI',
+                            cardTypeWeight: 1,
+                            groupCardsWeight: this.cardInfo.getWeight(arr[0])
+                        }
+                    } else {
+                        return false
+                    }
+                    break
+                // 三条
+                case 3:
+                    cardType = 'SAN_TIAO'
+                    break
+                // 三带一、炸弹
+                case 4:
+                    break
+            }
+        }
+    }
 }

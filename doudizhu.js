@@ -427,4 +427,25 @@ var doudizhu = function () {
                 return false
         }
     }
+
+    // 压牌，判断是否能够进行压牌
+    // 返回布尔值
+    this.beat = function (prevArr, nextArr) {
+        var prevArrType = this.getCardType(prevArr)
+        var nextArrType = this.getCardType(nextArr)
+        // 保证牌都是合法的
+        if (prevArrType && nextArrType) {
+            // 如果牌类型权重一致
+            if (prevArrType.cardTypeWeight === nextArrType.cardTypeWeight) {
+                // 如果牌组合类型、长度一致
+                if (prevArr.length === nextArr.length && prevArrType.cardType === nextArrType.cardType ) {
+                    // 判断牌组合权重
+                    return prevArrType.groupCardsWeight < nextArrType.groupCardsWeight
+                }
+            } else if (prevArrType.cardTypeWeight < nextArrType.cardTypeWeight){ // 如果新牌类型权重更大
+                return true
+            }
+        }
+        return false
+    }
 }

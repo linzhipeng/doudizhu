@@ -26,7 +26,7 @@ var Card = function () {
                         return 'K'
                         break
                     default:
-                        return '牌id不合法'
+                        throw '牌id不合法'
                 }
             }
         } else if (id === 52) {
@@ -34,7 +34,7 @@ var Card = function () {
         } else if (id === 53) {
             return 'Bwang'
         } else {
-            return '牌id不合法'
+            throw '牌id不合法'
         }
     }
     // 获取牌的花色 0-3
@@ -49,7 +49,7 @@ var Card = function () {
         } else if (id === 53) {
             return 'Bwang'
         } else {
-            return '牌id不合法'
+            throw '牌id不合法'
         }
     }
     // 获取牌权重 1-15
@@ -65,16 +65,24 @@ var Card = function () {
         } else if (id == 53) {
             return 15
         } else {
-            return '牌id不合法'
+            throw '牌id不合法'
         }
     }
 }
 
 var doudizhu = function () {
+    // ================  私有  ==================
+    var cardsArr = new Array()
+
     // 扑克牌排序（快速排序）
-    var paiSort = function (arr) {
+    var cardsSort = function (arr) {
+        // 直接对整副牌进行排序时报错，防止造成变量污染
+        if (arr === cardsArr) {
+            throw '请勿直接对整副牌进行排序，防止造成变量污染'
+        }
         quick(arr, 0, arr.length - 1)
         return arr
+        
         // 切割数组
         function quick (arrCut, left, right) {
             if (arrCut.length > 1) {
@@ -114,27 +122,65 @@ var doudizhu = function () {
             return leftSort
         }
     }
+
+    // ================  公有  ==================
+    // 获取当前的扑克牌id数组
+    this.getCards = function () {
+        return cardsArr
+    }
+
     // 单张牌对象
     this.cardInfo = new Card()
 
     // 洗牌算法，返回乱序的扑克id数组
-    this.getShuffleCardsId = function () {
-        var arr = new Array(),
-            i = 1
+    this.getShuffleCards = function () {
+        var i = 1
+        cardsArr = []
 
-        arr[0] = 0
+        cardsArr[0] = 0
         while (i <= 53) {
             var rnd = Math.floor(Math.random() * (i + 1))
-            arr[i] = arr[rnd]
-            arr[rnd] = i
+            cardsArr[i] = cardsArr[rnd]
+            cardsArr[rnd] = i
             i++
         }
-        return arr
-    }
-    // 快速排序方法
-    this.sort = function (arr) {
-        return paiSort(arr)
+        return true
     }
 
-    // 发牌
+    // 快速排序方法
+    this.sort = function (arr) {
+        return cardsSort(arr)
+    }
+
+    // 发牌，返回一个对象记录发牌情况，分别是：3组17张的随机牌、1组3张的地主牌
+    // 为使牌更加随机，三人轮流发牌，剩下3张为地主牌
+    this.dealCards = function () {
+        var player1 = new Array()
+        var player2 = new Array()
+        var player3 = new Array()
+        var leaveCards = new Array()
+        cardsArr.forEach(function(card, index) {
+            if (index <= 50) {
+                switch (index % 3) {
+                    case 0:
+                        player1.push(card)
+                        break;
+                    case 1:
+                        player2.push(card)
+                        break;
+                    default:
+                        player3.push(card)
+                        break;
+                }
+            } else {
+                leaveCards.push(card)
+            }
+        });
+        return {
+            'player1': player1,
+            'player2': player2,
+            'player3': player3,
+            'leaveCards': leaveCards
+        }
+    }
 }

@@ -186,7 +186,7 @@ var doudizhu = function () {
 
     // 出牌类型判断，接收出牌的id数组
     // 返回一个对象，用来表示：
-    // 牌类型（DAN_TIAO, DUI_ZI, SAN_TIAO, SAN_DAI_YI, SAN_DAI_YI_DUI, SI_DAI_SHAUNG_DAN, FEI_JI_DAI_SHUANG_DAN, SI_TIAO_DAI_SHUANG_DUI, FEI_JI_DAI_SHUANG_DUI, DAN_SHUN_ZI, SAN_SHUN_ZI, SHUANG_SHUN_ZI, ZHA_DAN, WANG_ZHA）
+    // 牌类型（DAN_TIAO, DUI_ZI, SAN_TIAO, SAN_DAI_YI, SAN_DAI_YI_DUI, SI_DAI_SHAUNG_DAN, FEI_JI_DAI_DAN, SI_TIAO_DAI_SHUANG_DUI, FEI_JI_DAI_DUI, DAN_SHUN_ZI, SAN_SHUN_ZI, SHUANG_SHUN_ZI, ZHA_DAN, WANG_ZHA）
     // 牌类型权重（1-3）
     // 当前组合牌权重（最小权重为 1）
     this.getCardType = function (arr) {
@@ -234,7 +234,7 @@ var doudizhu = function () {
         })
         // 过滤完毕，若数组长度有变，则说明数组不合法
         if (arr1.length !== arrLength) {
-            return false
+            throw '牌id不合法'
         }
         // 定义变量
         var dictionary = new Dictionary(),
@@ -250,7 +250,7 @@ var doudizhu = function () {
             }
         }, this)
         // 对牌权重数组进行排序
-        arr = this.sort(arr)
+        this.sort(arr)
         console.log(arr)
         // 字典所存的牌对象
         var dictionaryItems = dictionary.getDictionaryItems()
@@ -295,20 +295,15 @@ var doudizhu = function () {
                 } else {
                     return false
                 }
-                break
             case 2: // 对子（2）、双顺子（6-16）
                 if (arrLength === 2) {
-                    if (arr[0] === arr[1]) {
-                        return { // 对子
-                            cardType: 'DUI_ZI',
-                            cardTypeWeight: 1,
-                            groupCardsWeight: arr[0]
-                        }
-                    } else {
-                        return false
+                    return { // 对子
+                        cardType: 'DUI_ZI',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: arr[0]
                     }
                 } else if (arrLength >= 6 && arrLength <= 16 && arrLength % 2 === 0) {
-                    // 判断数组去重后是否为顺子（至少3张顺子）
+                    // 判断数组去重后是否构成顺子（至少3张顺子）
                     var simpleArr = arr.filter(function (value, index, self) {
                         return self.indexOf(value) === index
                     })
@@ -330,12 +325,106 @@ var doudizhu = function () {
                 }
                 return false
                 
-            case 3: // 三条（3）、三带一（4）、三带一对（5）、飞机带翅膀（8-16）、三顺（6-15）
-                break
+            case 3: // 三条（3）、三带一（4）、三带一对（5）、三顺子（6-15）、飞机带单（8-16）、飞机带对（12-15）
+                if (arrLength === 3) {
+                    return { // 三条
+                        cardType: 'SAN_TIAO',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: arr[0]
+                    }
+                } else if (arrLength === 4) {
+                    return { // 三带一
+                        cardType: 'SAN_DAI_YI',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: muchCardWeight
+                    }
+                } else if (arrLength === 5) {
+                    // 遍历牌权重信息字典，找出是否存在一个对子
+                    for (var card in dictionaryItems) {
+                        if (dictionaryItems[card] === 2) {
+                            return { // 三带一对
+                                cardType: 'SAN_DAI_YI_DUI',
+                                cardTypeWeight: 1,
+                                groupCardsWeight: dictionaryItems[muchCardWeight]
+                            } 
+                        }
+                    }
+                    return false
+                } else if (arrLength >= 6 && arrLength <= 16) {
+                    var sanArr = new Array()
+                    // 遍历牌权重信息字典，找出所有三条
+                    for (var card in dictionaryItems) {
+                        if (dictionaryItems[card] === 3) {
+                            sanArr.push(card)
+                            // 排序
+                            this.sort(sanArr)
+                        }
+                    }
+                    console.log(sanArr)
+                    // 至少两个三条，且不含三条不能大于A
+                    if (sanArr.length >= 2 && sanArr[sanArr.length - 1] <= 12) {
+                        // 判断去重后是否构成顺子（至少2张顺子）
+                        if (sanArr[sanArr.length - 1] - sanArr[0] + 1 === sanArr.length) {
+                            if (sanArr.length * 3 === arrLength) {
+                                return { // 三顺子
+                                    cardType: 'SAN_SHUN_ZI',
+                                    cardTypeWeight: 1,
+                                    groupCardsWeight: sanArr[0]
+                                }
+                            } else if (arrLength - sanArr.length * 3 === sanArr.length) {
+                                return { // 飞机带单
+                                    cardType: 'FEI_JI_DAI_DAN',
+                                    cardTypeWeight: 1,
+                                    groupCardsWeight: sanArr[0]
+                                }
+                            } else if (arrLength - sanArr.length * 3 === sanArr.length * 2) {
+                                // 遍历牌权重信息字典，若是飞机带双，则除了3对，其他都为对子
+                                for (var card in dictionaryItems) {
+                                    if (dictionaryItems[card] !== 3 && dictionaryItems[card] !== 2) {
+                                        return false
+                                    }
+                                }
+                                return { // 飞机带双
+                                    cardType: 'FEI_JI_DAI_SHUANG',
+                                    cardTypeWeight: 1,
+                                    groupCardsWeight: sanArr[0]
+                                }
+                            }
+                            return false
+                        }
+                        return false
+                    }
+                    return false
+                }
             case 4: // 炸弹（4）、四条带双单（6）、四条带双对（8）
-                break
+                if (arrLength === 4) {
+                    return {
+                        cardType: 'ZHA_DAN',
+                        cardTypeWeight: 2,
+                        groupCardsWeight: arr[0]
+                    }
+                } else if (arrLength === 6) {
+                    return { // 四条带双单
+                        cardType: 'SI_TIAO_DAI_SHUANG_DAN',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: muchCardWeight
+                    }
+                } else if (arrLength === 8) {
+                    // 四条带双对 则只存在4条和对
+                    for (var card in dictionaryItems) {
+                        if (dictionaryItems[card] !== 4 && dictionaryItems[card] !== 2) {
+                            return false
+                        }
+                    }
+                    return { // 四条带双对
+                        cardType: 'SI_TIAO_DAI_SHAUNG_DUI',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: muchCardWeight
+                    }
+                }
+                return false
             default:
-                break
+                return false
         }
     }
 }

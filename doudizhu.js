@@ -186,7 +186,7 @@ var doudizhu = function () {
 
     // 出牌类型判断，接收出牌的id数组
     // 返回一个对象，用来表示：
-    // 牌类型（DAN_TIAO, DUI_ZI, SAN_TIAO, SAN_DAI_YI, SAN_DAI_YI_DUI, SI_DAI_SHAUNG_DAN, FEI_JI_DAI_SHUANG_DAN, SI_TIAO_DAI_SHUANG_DUI, FEI_JI_DAI_SHUANG_DUI, DAN_SHUN, SAN_SHUN, SHUANG_SHUN, ZHA_DAN, WANG_ZHA）
+    // 牌类型（DAN_TIAO, DUI_ZI, SAN_TIAO, SAN_DAI_YI, SAN_DAI_YI_DUI, SI_DAI_SHAUNG_DAN, FEI_JI_DAI_SHUANG_DAN, SI_TIAO_DAI_SHUANG_DUI, FEI_JI_DAI_SHUANG_DUI, DAN_SHUN_ZI, SAN_SHUN_ZI, SHUANG_SHUN_ZI, ZHA_DAN, WANG_ZHA）
     // 牌类型权重（1-3）
     // 当前组合牌权重（最小权重为 1）
     this.getCardType = function (arr) {
@@ -251,6 +251,7 @@ var doudizhu = function () {
         }, this)
         // 对牌权重数组进行排序
         arr = this.sort(arr)
+        console.log(arr)
         // 字典所存的牌对象
         var dictionaryItems = dictionary.getDictionaryItems()
         // 计算最多牌数最多的同权重牌
@@ -264,7 +265,7 @@ var doudizhu = function () {
             }
         }
         switch (cardMaxNum) {
-            case 1: // 单条（1）、王炸（2）、单顺（5-12）
+            case 1: // 单条（1）、王炸（2）、单顺子（5-12）
                 if (arrLength === 1) {
                     return { // 单条
                         cardType: 'DAN_TIAO',
@@ -288,12 +289,47 @@ var doudizhu = function () {
                                 groupCardsWeight: arr[0]
                             }
                         }
+                        return false
                     }
+                    return false
+                } else {
                     return false
                 }
                 break
-            case 2: // 对子（2）、双顺（6-16）
-                break
+            case 2: // 对子（2）、双顺子（6-16）
+                if (arrLength === 2) {
+                    if (arr[0] === arr[1]) {
+                        return { // 对子
+                            cardType: 'DUI_ZI',
+                            cardTypeWeight: 1,
+                            groupCardsWeight: arr[0]
+                        }
+                    } else {
+                        return false
+                    }
+                } else if (arrLength >= 6 && arrLength <= 16 && arrLength % 2 === 0) {
+                    // 判断数组去重后是否为顺子（至少3张顺子）
+                    var simpleArr = arr.filter(function (value, index, self) {
+                        return self.indexOf(value) === index
+                    })
+                    if (simpleArr.length * 2 !== arrLength) {
+                        return false
+                    }
+                    // 顺子最大只能到A
+                    if (arr[arrLength - 1] <= 12) {
+                        if (simpleArr[simpleArr.length - 1] - simpleArr[0] + 1 === simpleArr.length) {
+                            return { // 双顺子
+                                cardType: 'SHUANG_SHUN_ZI',
+                                cardTypeWeight: 1,
+                                groupCardsWeight: simpleArr[0]
+                            }
+                        }
+                        return false
+                    }
+                    return false
+                }
+                return false
+                
             case 3: // 三条（3）、三带一（4）、三带一对（5）、飞机带翅膀（8-16）、三顺（6-15）
                 break
             case 4: // 炸弹（4）、四条带双单（6）、四条带双对（8）

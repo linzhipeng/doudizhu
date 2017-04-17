@@ -1,5 +1,3 @@
-var doudizhu = function () {}
-
 var Card = function () {
     // 约定：
     // 扑克牌54张，分别包含普通牌52张：A、2-10、J、Q、K （以上每种牌4个花色）小王大王：Swang、Bwang
@@ -72,12 +70,55 @@ var Card = function () {
     }
 }
 
-var cardInfo = new Card()
+var doudizhu = function () {
+    // 扑克牌排序（快速排序）
+    var paiSort = function (arr) {
+        quick(arr, 0, arr.length - 1)
+        return arr
+        // 切割数组
+        function quick (arrCut, left, right) {
+            if (arrCut.length > 1) {
+                var index = partition(arrCut, left, right)
 
-doudizhu.prototype = {
-    cardInfo: cardInfo,
+                if (left < index - 1) {
+                    quick(arrCut, left, index - 1)
+                }
+
+                if (index < right) {
+                    quick(arrCut, index, right)
+                }
+            }
+        }
+        // 排序数组
+        function partition (arrSort, leftSort, rightSort) {
+            var pivot = arrSort[Math.floor((leftSort + rightSort) / 2)]
+
+            while (leftSort <= rightSort) {
+                while (arrSort[leftSort] < pivot) {
+                    leftSort++
+                }
+
+                while (arrSort[rightSort] > pivot) {
+                    rightSort--
+                }
+
+                if (leftSort <= rightSort) {
+                    var aux = arrSort[leftSort]
+                    arrSort[leftSort] = arrSort[rightSort]
+                    arrSort[rightSort] = aux
+
+                    leftSort++
+                    rightSort--
+                }
+            }
+            return leftSort
+        }
+    }
+    // 单张牌对象
+    this.cardInfo = new Card()
+
     // 洗牌算法，返回乱序的扑克id数组
-    getShuffleCardsId: function () {
+    this.getShuffleCardsId = function () {
         var arr = new Array(),
             i = 1
 
@@ -90,4 +131,10 @@ doudizhu.prototype = {
         }
         return arr
     }
+    // 快速排序方法
+    this.sort = function (arr) {
+        return paiSort(arr)
+    }
+
+    // 发牌
 }

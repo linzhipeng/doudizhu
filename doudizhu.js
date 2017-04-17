@@ -236,21 +236,22 @@ var doudizhu = function () {
         if (arr1.length !== arrLength) {
             return false
         }
-        // 对牌进行排序
-        arr = this.sort(arr)
         // 定义变量
         var dictionary = new Dictionary(),
             cardType, cardTypeWeight, groupCardsWeight
-        // 将id装换成单张牌对应的牌权重，并通过 字典 存储该权重牌的张数
-        arr.forEach(function (card) {
+        // 将牌数组的id装换成单张牌对应的牌权重，并通过 字典 存储该权重牌的张数
+        arr.forEach(function (card, index) {
             var cardWeight = this.cardInfo.getWeight(card)
+            arr[index] = cardWeight
             if (dictionary.has(cardWeight)) {
                 dictionary.set(cardWeight, dictionary.get(cardWeight) + 1)
             } else {
                 dictionary.set(cardWeight, 1)
             }
         }, this)
-        // 字典对象
+        // 对牌权重数组进行排序
+        arr = this.sort(arr)
+        // 字典所存的牌对象
         var dictionaryItems = dictionary.getDictionaryItems()
         // 计算最多牌数最多的同权重牌
         var cardMaxNum = 0, // 同权重牌最多张的有几张
@@ -264,6 +265,32 @@ var doudizhu = function () {
         }
         switch (cardMaxNum) {
             case 1: // 单条（1）、王炸（2）、单顺（5-12）
+                if (arrLength === 1) {
+                    return { // 单条
+                        cardType: 'DAN_TIAO',
+                        cardTypeWeight: 1,
+                        groupCardsWeight: arr[0]
+                    }
+                } else if (arr[0] === 14 && arr[1] === 15) {
+                    return { // 王炸
+                        cardType: 'WANG_ZHA',
+                        cardTypeWeight: 3,
+                        groupCardsWeight: 1
+                    }
+                } else if (arrLength >= 5 && arrLength <= 12) {
+                    // 顺子最大只能到A
+                    if (arr[arrLength - 1] <= 12) {
+                        // 最大权重减最小权重加1 等于数组长度，则为单顺子
+                        if (arr[arrLength - 1] - arr[0] + 1 === arrLength) {
+                            return { // 单顺子
+                                cardType: 'DAN_SHUN_ZI',
+                                cardTypeWeight: 1,
+                                groupCardsWeight: arr[0]
+                            }
+                        }
+                    }
+                    return false
+                }
                 break
             case 2: // 对子（2）、双顺（6-16）
                 break
@@ -274,48 +301,5 @@ var doudizhu = function () {
             default:
                 break
         }
-
-        // if (arrLength <= 4) {
-        //     switch (arrLength) {
-        //         case 1:
-        //             return { // 单条
-        //                 cardType: 'DAN_TIAO',
-        //                 cardTypeWeight: 1,
-        //                 groupCardsWeight: this.cardInfo.getWeight(arr[0])
-        //             }
-        //         case 2:
-        //             if (arr[0] === 52 && arr[1] === 53) {
-        //                 return { // 王炸
-        //                     cardType: 'WANG_ZHA',
-        //                     cardTypeWeight: 3,
-        //                     groupCardsWeight: 1
-        //                 }
-        //             } else if (this.cardInfo.getWeight(arr[0]) === this.cardInfo.getWeight(arr[1])) {
-        //                 return { // 对子
-        //                     cardType: 'DUI_ZI',
-        //                     cardTypeWeight: 1,
-        //                     groupCardsWeight: this.cardInfo.getWeight(arr[0])
-        //                 }
-        //             } else {
-        //                 return false
-        //             }
-        //         case 3:
-        //             if (this.cardInfo.getWeight(arr[0]) === this.cardInfo.getWeight(arr[1]) && this.cardInfo.getWeight(arr[1]) === this.cardInfo.getWeight(arr[2])) {
-        //                 return { // 三条
-        //                     cardType: 'SAN_TIAO',
-        //                     cardTypeWeight: 1,
-        //                     groupCardsWeight: this.cardInfo.getWeight(arr[0])
-        //                 }
-        //             } else {
-        //                 return false
-        //             }
-        //         // 三带一、炸弹
-        //         case 4:
-        //             if (arr) {
-
-        //             }
-        //             break
-        //     }
-        // }
     }
 }

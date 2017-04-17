@@ -190,59 +190,132 @@ var doudizhu = function () {
     // 牌类型权重（1-3）
     // 当前组合牌权重（最小权重为 1）
     this.getCardType = function (arr) {
-
-        var arrLength = arr.length,
-            cardType, cardTypeWeight, groupCardsWeight
-
+        // 字典存储牌信息
+        function Dictionary () {
+            var items = {}
+            // 检查字典是否存在该key
+            this.has = function (key) {
+                return key in items
+            }
+            // 为字典添加一个新值
+            this.set = function (key, value) {
+                items[key] = value
+            }
+            // 移除字典中某一个元素
+            this.remove = function (key) {
+                if (this.has(key)) {
+                    delete items[key]
+                    return true
+                }
+                return false
+            }
+            // 获取指定key的值
+            this.get = function (key) {
+                return this.has(key) ? items[key] : undefined
+            }
+            // 清除字典
+            this.clear = function () {
+                items = {}
+            }
+            // 获取字典对象
+            this.getDictionaryItems = function () {
+                return items
+            }
+        }
+        // 牌数组长度
+        var arrLength = arr.length
         // 出牌数限制
         if (arrLength <= 0 || arrLength >= 17) {
             return false
         }
-        // 过滤掉非正整数id、重复id
+        // 过滤掉重复id、非正整数id、大于53的id
         var arr1 = arr.filter(function (id, index, self) {
-            return (self.indexOf(id) === index && Math.abs(parseInt(id)) === id)
+            return (self.indexOf(id) === index && Math.abs(parseInt(id)) === id && index <= 53)
         })
+        // 过滤完毕，若数组长度有变，则说明数组不合法
         if (arr1.length !== arrLength) {
             return false
         }
-        
         // 对牌进行排序
         arr = this.sort(arr)
+        // 定义变量
+        var dictionary = new Dictionary(),
+            cardType, cardTypeWeight, groupCardsWeight
+        // 将id装换成单张牌对应的牌权重，并通过 字典 存储该权重牌的张数
+        arr.forEach(function (card) {
+            var cardWeight = this.cardInfo.getWeight(card)
+            if (dictionary.has(cardWeight)) {
+                dictionary.set(cardWeight, dictionary.get(cardWeight) + 1)
+            } else {
+                dictionary.set(cardWeight, 1)
+            }
+        }, this)
+        // 字典对象
+        var dictionaryItems = dictionary.getDictionaryItems()
+        // 计算最多牌数最多的同权重牌
+        var cardMaxNum = 0, // 同权重牌最多张的有几张
+            muchCardWeight // 最多牌的牌权重数
 
-        if (arrLength <= 4) {
-            switch (arrLength) {
-                case 1:
-                    return { // 单条
-                        cardType: 'DAN_TIAO',
-                        cardTypeWeight: 1,
-                        groupCardsWeight: this.cardInfo.getWeight(arr[0])
-                    }
-                    break
-                case 2:
-                    if (arr[0] === 52 && arr[1] === 53) {
-                        return { // 王炸
-                            cardType: 'WANG_ZHA',
-                            cardTypeWeight: 3,
-                            groupCardsWeight: 1
-                        }
-                    } else if (this.cardInfo.getWeight(arr[0]) === this.cardInfo.getWeight(arr[1])) {
-                        return { // 对子
-                            cardType: 'DUI_ZI',
-                            cardTypeWeight: 1,
-                            groupCardsWeight: this.cardInfo.getWeight(arr[0])
-                        }
-                    } else {
-                        return false
-                    }
-                    break
-                // 三条
-                case 3:
-                    cardType = 'SAN_TIAO'
-                    break
-                // 三带一、炸弹
-                case 4:
-                    break
+        for (var card in dictionaryItems) {
+            if (dictionaryItems[card] > cardMaxNum) {
+                cardMaxNum = dictionaryItems[card]
+                muchCardWeight = card
             }
         }
+        switch (cardMaxNum) {
+            case 1: // 单条（1）、王炸（2）、单顺（5-12）
+                break
+            case 2: // 对子（2）、双顺（6-16）
+                break
+            case 3: // 三条（3）、三带一（4）、三带一对（5）、飞机带翅膀（8-16）、三顺（6-15）
+                break
+            case 4: // 炸弹（4）、四条带双单（6）、四条带双对（8）
+                break
+            default:
+                break
+        }
+
+        // if (arrLength <= 4) {
+        //     switch (arrLength) {
+        //         case 1:
+        //             return { // 单条
+        //                 cardType: 'DAN_TIAO',
+        //                 cardTypeWeight: 1,
+        //                 groupCardsWeight: this.cardInfo.getWeight(arr[0])
+        //             }
+        //         case 2:
+        //             if (arr[0] === 52 && arr[1] === 53) {
+        //                 return { // 王炸
+        //                     cardType: 'WANG_ZHA',
+        //                     cardTypeWeight: 3,
+        //                     groupCardsWeight: 1
+        //                 }
+        //             } else if (this.cardInfo.getWeight(arr[0]) === this.cardInfo.getWeight(arr[1])) {
+        //                 return { // 对子
+        //                     cardType: 'DUI_ZI',
+        //                     cardTypeWeight: 1,
+        //                     groupCardsWeight: this.cardInfo.getWeight(arr[0])
+        //                 }
+        //             } else {
+        //                 return false
+        //             }
+        //         case 3:
+        //             if (this.cardInfo.getWeight(arr[0]) === this.cardInfo.getWeight(arr[1]) && this.cardInfo.getWeight(arr[1]) === this.cardInfo.getWeight(arr[2])) {
+        //                 return { // 三条
+        //                     cardType: 'SAN_TIAO',
+        //                     cardTypeWeight: 1,
+        //                     groupCardsWeight: this.cardInfo.getWeight(arr[0])
+        //                 }
+        //             } else {
+        //                 return false
+        //             }
+        //         // 三带一、炸弹
+        //         case 4:
+        //             if (arr) {
+
+        //             }
+        //             break
+        //     }
+        // }
     }
 }

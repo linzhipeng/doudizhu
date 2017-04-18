@@ -1,6 +1,6 @@
 {
   "name": "doudizhu",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "瞎猫的JavaScript 斗地主算法封装",
   "main": "doudizhu.js",
   "scripts": {

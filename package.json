@@ -1,0 +1,19 @@
+{
+  "name": "doudizhu",
+  "version": "1.0.0",
+  "description": "瞎猫的JavaScript 斗地主算法封装",
+  "main": "doudizhu.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linzhipeng/doudizhu.git"
+  },
+  "author": "blindcat",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/linzhipeng/doudizhu/issues"
+  },
+  "homepage": "https://github.com/linzhipeng/doudizhu#readme"
+}

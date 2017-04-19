@@ -80,6 +80,11 @@ var doudizhu = function () {
         if (arr === cardsArr) {
             throw '请勿直接对整副牌进行排序，防止造成变量污染'
         }
+        arr.forEach(function (value) {
+            if (Math.abs(parseInt(value)) !== value) {
+                throw '请确保传入数组元素都为正整数'
+            }
+        })
         quick(arr, 0, arr.length - 1)
         return arr
         

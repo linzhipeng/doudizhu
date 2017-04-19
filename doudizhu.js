@@ -76,15 +76,6 @@ var doudizhu = function () {
 
     // 扑克牌排序（快速排序）
     var cardsSort = function (arr) {
-        // 直接对整副牌进行排序时报错，防止造成变量污染
-        if (arr === cardsArr) {
-            throw '请勿直接对整副牌进行排序，防止造成变量污染'
-        }
-        arr.forEach(function (value) {
-            if (Math.abs(parseInt(value)) !== value) {
-                throw '请确保传入数组元素都为正整数'
-            }
-        })
         quick(arr, 0, arr.length - 1)
         return arr
         
@@ -154,7 +145,66 @@ var doudizhu = function () {
 
     // 快速排序方法
     this.sort = function (arr) {
+        if (!arr) {
+            return false
+        }
+        // 直接对整副牌进行排序时报错，防止造成变量污染
+        if (arr === cardsArr) {
+            throw '请勿直接对整副牌进行排序，防止造成变量污染'
+        }
+        // 保证数组元素都是非负整数
+        arr.forEach(function (value) {
+            if (Math.abs(parseInt(value)) !== value) {
+                return false
+            }
+        })
         return cardsSort(arr)
+    }
+
+    // 根据牌权重进行排序
+    this.weightSort = function (arr) {
+        if (!arr) {
+            return false
+        }
+        // 直接对整副牌进行排序时报错，防止造成变量污染
+        if (arr === cardsArr) {
+            throw '请勿直接对整副牌进行排序，防止造成变量污染'
+        }
+        // 过滤不符合要求的数组元素，传入数组元素应该为小于54的非负整数，不可重复，否则返回`false`
+        var cArr = arr.filter(function (value, index, self) {
+            var cNum = Math.abs(parseInt(value))
+            if (cNum !== value || cNum > 53 || self.indexOf(value) !== index) {
+                return false
+            } else {
+                return true
+            }
+        })
+        if (cArr.length !== arr.length) {
+            return false
+        }
+        // 区别出A和2，他们比3-K都大
+        arr.forEach(function (value, index) {
+            if (value <= 7) {
+                arr[index] = value + 11 * 4
+            } else if (value >= 8 && value <= 51) {
+                arr[index] = value - 2 * 4
+            }
+        })
+        // 排序
+        arr = cardsSort(arr)
+        // 恢复数组
+        if (arr) {
+            arr.forEach(function (value, index) {
+                if (value <= 43) {
+                    arr[index] = value + 2 * 4
+                } else if (value >= 44 && value <= 51) {
+                    arr[index] = value - 11 * 4
+                }
+            })
+            return arr
+        } else {
+            return false
+        }
     }
 
     // 发牌，返回一个对象记录发牌情况，分别是：3组17张的随机牌、1组3张的地主牌

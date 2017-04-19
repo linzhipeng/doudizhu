@@ -144,7 +144,7 @@ var doudizhu = function () {
             cardsArr[rnd] = i
             i++
         }
-        return true
+        return cardsArr
     }
 
     // 快速排序方法
@@ -188,7 +188,7 @@ var doudizhu = function () {
     // 返回一个对象，用来表示：
     // 牌类型（DAN_TIAO, DUI_ZI, SAN_TIAO, SAN_DAI_YI, SAN_DAI_YI_DUI, SI_DAI_SHAUNG_DAN, FEI_JI_DAI_DAN, SI_TIAO_DAI_SHUANG_DUI, FEI_JI_DAI_DUI, DAN_SHUN_ZI, SAN_SHUN_ZI, SHUANG_SHUN_ZI, ZHA_DAN, WANG_ZHA）
     // 牌类型权重（1-3）
-    // 当前组合牌权重（最小权重为 1）
+    // 当前扑克牌组权重（最小权重为 1）
     this.getCardType = function (arr) {
         // 字典存储牌信息
         function Dictionary () {
@@ -251,7 +251,6 @@ var doudizhu = function () {
         }, this)
         // 对牌权重数组进行排序
         this.sort(arr)
-        console.log(arr)
         // 字典所存的牌对象
         var dictionaryItems = dictionary.getDictionaryItems()
         // 计算最多牌数最多的同权重牌
@@ -360,7 +359,6 @@ var doudizhu = function () {
                             this.sort(sanArr)
                         }
                     }
-                    console.log(sanArr)
                     // 至少两个三条，且不含三条不能大于A
                     if (sanArr.length >= 2 && sanArr[sanArr.length - 1] <= 12) {
                         // 判断去重后是否构成顺子（至少2张顺子）

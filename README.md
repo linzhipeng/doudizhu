@@ -1,7 +1,9 @@
 # doudizhu
+
 瞎猫的JavaScript 斗地主算法封装
 
 ## 起步 Start
+
 ```javascript
 var douzizhu = require('doudizhu')
 ```
@@ -11,6 +13,7 @@ var douzizhu = require('doudizhu')
 ### 洗牌
 
 记录并返回1副乱序id的扑克牌数组
+
 ```javascript
 doudizhu.getShuffleCards()
 /*
@@ -20,7 +23,8 @@ doudizhu.getShuffleCards()
 
 ### 查看当前洗完的扑克牌
 
-返回上次洗牌完成后的1副扑克牌 **数组**（未洗过牌则为空数组）
+返回上次洗牌完成后的1副扑克牌数组（未洗过牌则为空数组）
+
 ```javascript
 doudizhu.getCards()
 /*
@@ -30,7 +34,8 @@ doudizhu.getCards()
 
 ### 发牌
 
-返回1个 **对象**记录4组牌：3组17张的随机牌、1组3张的地主牌
+返回1个对象记录4组牌：3组17张的随机牌、1组3张的地主牌
+
 ```javascript
 doudizhu.dealCards()
 /*
@@ -44,8 +49,9 @@ doudizhu.dealCards()
 ```
 
 ### 获取扑克牌组的类型及权重信息
-接收1个扑克牌id **数组**（可乱序），返回1个牌信息**对象**
+接收1个扑克牌id数组（可乱序），返回1个牌信息对象
 如果出牌不合规则则返回 `false`
+
 ```javascript
 doudizhu.getCardType([8,12,16,20,24])
 /*
@@ -59,7 +65,7 @@ doudizhu.getCardType([8,12,16,20,24])
 
 ### 压牌
 
-接收2个扑克牌id **数组**（可乱序），返回两个牌的比较结果
+接收2个扑克牌id数组（可乱序），返回两个牌的比较结果
 若第二组牌可压第一组则返回 `true`
 不可压或者牌不合法则返回 `false`
 
@@ -71,10 +77,15 @@ true
 ```
 
 ### 排序
+
 对给定的数组进行排序，按照从小到大，返回排序后的数组
+
 不限制数组元素大小，不限制数组元素不重复
-注意：不可直接对当前的整副扑克牌数组对象进行排序，防止造成变量污染，故对此行为进行了异常抛出处理
+
 注意：此排序为直接影响修改原数组
+
+不可直接对当前的整副扑克牌数组对象进行排序，防止造成变量污染，故对此行为进行了异常抛出处理
+
 ```javascript
 doudizhu.sort([34, 6, 2, 8, 22])
 /*

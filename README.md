@@ -5,7 +5,7 @@
 ## 起步 Start
 
 ```javascript
-var douzizhu = require('doudizhu')
+var doudizhu = require('doudizhu')
 ```
 
 ## 文档 Doc
